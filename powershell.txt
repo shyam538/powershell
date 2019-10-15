@@ -1,0 +1,141 @@
+### List files sorted by LastWriteTime
+get-childitem -filter "*.xls" | sort LastWriteTime -Descending
+
+get-childitem -name -filter "*.xls" | sort LastWriteTime -Descending
+get-childitem -filter "*.xls" | sort LastWriteTime -Descending |select name
+(gci *.csv | ? { $_.LastWriteTime -gt (Get-Date).AddDays(-3) }).Count
+gci $folder * -Recurse | ? {$_.CreationTime -gt (Get-Date).Date }
+gci "FINS*" |?{($_.Length -gt 2) -and ($_.LastAccessTime -gt (Get-Date).AddHours(-13))}
+gci "FINS*" |?{($_.Length -gt 0) -and ($_.LastAccessTime -gt (Get-Date).AddDays(-1))}
+
+get-childitem -Path e:\sba81\siebsrvr\bin\*.fdr -name
+
+### List Certificates
+Get-ChildItem -Path Cert:\CurrentUser\My\*
+
+### List ADUser
+Get-ADUser ldapuser | select Name, Department, @{l='OU';e={$_.DistinguishedName.split(',')[1].split('=')[1]}}
+Get-ADUser -Filter * -SearchBase "OU=Finance,OU=UserAccounts,DC=FABRIKAM,DC=COM"
+Get-ADUser -Filter 'Name -like "*SvcAccount"' | FT Name,SamAccountName -A
+Get-ADUser GlenJohn -Properties *
+Get-ADUser -Filter {Name -eq "GlenJohn"} -SearchBase "DC=AppNC" -Properties mail -Server lds.Fabrikam.com:50000
+
+
+##### finding length of files in a directory
+$ThisDir = “C:\Temp”
+Get-ChildItem $ThisDir | ForEach-Object –Process {if (!$_.PSIsContainer) {$_.Name; $_.Length / 1024; " " }}
+
+#### Label - Expression (format output)
+gci *.csv | select Name,@{l="Month";e={$_.CreationTime.ToString("yyyyMM")}}
+
+####Rename files
+Get-ChildItem -path "c:/path/to/files/" -recurse -include @("*.jpg") | rename-item -newname { $_.name  -replace "IMG",($_.CreationTime.toString("yyyyMMdd"))}
+
+###Group
+gci | group {$_.CreationTime.ToString("yyyy")} -NoElement
+
+##### Saving events to a log file
+
+$AppEvents = Get-EventLog –LogName Application
+$AppEvents | ForEach-Object –Process {Out-File –FilePath C:\Temp\AllAppEvents.TXT –Append –InputObject $_.Message}
+
+######## STOP START SERVICES
+
+Stop-Service -Name "siebsrvr_ESIA17_SSIA17"
+Stop-Service -Name "SiebelApplicationContainer_Siebel_Home_E_Siebel_AI"
+Stop-Service -Name "SiebelApplicationContainer_Siebel_Home_E_Siebel_ses"
+Stop-Service -Name "gtwyns"
+
+Start-Service -Name "gtwyns"
+Start-Service -Name "SiebelApplicationContainer_Siebel_Home_E_Siebel_ses"
+Start-Service -Name "SiebelApplicationContainer_Siebel_Home_E_Siebel_AI"
+Start-Service -Name "siebsrvr_ESIA17_SSIA17"
+
+Get-Service sql* | foreach {if ($_.Status -eq 'running') {$_.DisplayName}}
+gwmi -Class Win32_Service |? {$_.State -match 'Running' -and $_.StartName -match 'noam*' }|format-table
+gwmi -Class Win32_Service -Comp stovsvr052 -Cred "noam\srv_iristest" |? {$_.Name -like "Sieb*"}
+gtwyns
+siebsrvr_IRISUATD_STOVSVR052
+siebsrvr_IRISUATD_STOVSVR0176
+gwmi -Class Win32_Service -Comp stovsvr0176,stovsvr052 -Cred "noam\srv_iristest" |? {$_.StartName -match 'noam*'}|ft
+LG3?ZD7XDdGO
+
+
+$s = Get-Service wmi
+Start-Service -InputObject $s -PassThru | Format-List >> services.txt
+
+#######3 STOP PROCESS
+
+Stop-Process  -Id 5596
+
+Get-Process | ? {$_.HasExited}
+
+taskkill /F /PID 7604
+taskkill /F /fi "IMAGENAME eq sieb*" /im *
+
+#### execute an exe with parameters
+& ./whizbang --% -host server01 -retry 5
+
+OR 
+
+$exe = 'C:\tools\whizbang\whizbang.exe'
+$host = 'server01'
+$retry = 5
+& $exe -host $host -retry $retry
+
+###### Import CSV
+
+import-csv “c:tempcomputers.csv”| where-object {$_.owner -eq "russellsmith"}
+import-csv “c:tempcomputers.csv” –header Name, IP, Location, User –delimiter |
+
+
+###Sort and Filter
+Get-Process | sort CPU -Descending | select -First 5
+
+###select string 
+sls -Path C:\DataFiles\*.txt 'error output' | select LineNumber | Format-List
+
+gci EAIEuro* |?{$_.CreationTime -gt (Get-Date).Date}|sls 1-1S64JTR
+
+### Write to File
+Add-Content <filename> "Text here"
+
+###Convert to HTML
+$header = @"
+<style>
+body {text-align: center;}
+TABLE {margin: auto; border-width: 1px; border-style: solid; border-color: black; border-collapse: collapse;}
+TH {border-width: 1px; padding: 3px; border-style: solid; border-color: black; background-color: #6495ED;}
+TD {border-width: 1px; padding: 3px; border-style: solid; border-color: black;}
+</style>
+"@
+
+
+####### List Printers
+Get-Printer -ComputerName HYDVSVR84220|? {$_.Location -like "OB3*"}| select Name, ShareName, ComputerName,PrinterStatus,Location, Shared|format-table
+
+
+#### Siebel log
+$header = 'Event', 'SubEvent', 'Loglvl', 'SarmID', 'Tstamp', 'Summary'
+$data=get-content FINSNoamObjMgr_enu_0025_26214998.log|select -skip 1|Convertfrom-csv -Delimiter "`t" -Header $header
+$data|?{($_.SubEvent -eq "InvokeMethod") -and ($_.Summary -match "seconds")}|ft -AutoSize
+
+### Copy log files
+gci "EAI*" |?{($_.Length -gt 0) -and ($_.LastAccessTime -gt (Get-Date).AddHours(-13))}|% {Copy-Item $_.FullName E:\shyam\20190624}
+gci S_PIM* -Path E:\sba81fs* -Recurse|% {Copy-Item $_.FullName V:\sba81fs1\att}
+
+Long Running SQLs 
+$date=Get-Date -Format yyyy_MM_dd
+$cursor=sls "Execute.*SQL Cursor with ID" FINS* |%{$_ -replace ':',' ' -replace 'SQL .* ID', 'Execute' -replace '\s+',','}|convertFrom-Csv -Delimiter ',' -Header A,B,C,D,E,F,G,H,I|?{[Int]$_.G -gt 5}
+$cursor+=sls "Fetch.*SQL Cursor with ID" FINS* |%{$_ -replace ':',' ' -replace 'SQL .* ID', 'Fetch' -replace '\s+',','}|convertFrom-Csv -Delimiter ',' -Header A,B,C,D,E,F,G,H,I|?{[Int]$_.G -gt 5}
+$sql=$cursor|select B,C,E,F,G
+$sql|sort {[Float]$_.G} -Descending |ConvertTo-Html -Head $header -Title 'Siebel Log Analysis' -PreContent "<h2 align=center>$date - SQLs > 5 Seconds</h2>" |Out-File "sqls_$date.html"
+
+
+
+sls '2FB6D490: 50.460' FINSEuroObjMgr_enu_0014_14681280.log -Context 598,1368|Out-String -Stream|sls "[Begin:|End:] Business Service 'Web Engine Interface'"
+sls '3A569828: 20.326' FINSEuroObjMgr_enu_0011_11534922.log -Context 900,0
+
+#### Extract SQL
+$cursor|%{sls "$($_.E): $($_.F)" $_.B -Context 600,0}|%{$_.Context.PreContext; $_.Line}|Add-Content sqltemp.txt
+
