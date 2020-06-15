@@ -22,8 +22,8 @@ Get-ADUser -Filter {Name -eq "GlenJohn"} -SearchBase "DC=AppNC" -Properties mail
 
 
 ##### finding length of files in a directory
-$ThisDir = ìC:\Tempî
-Get-ChildItem $ThisDir | ForEach-Object ñProcess {if (!$_.PSIsContainer) {$_.Name; $_.Length / 1024; " " }}
+$ThisDir = ‚ÄúC:\Temp‚Äù
+Get-ChildItem $ThisDir | ForEach-Object ‚ÄìProcess {if (!$_.PSIsContainer) {$_.Name; $_.Length / 1024; " " }}
 
 #### Label - Expression (format output)
 gci *.csv | select Name,@{l="Month";e={$_.CreationTime.ToString("yyyyMM")}}
@@ -36,8 +36,8 @@ gci | group {$_.CreationTime.ToString("yyyy")} -NoElement
 
 ##### Saving events to a log file
 
-$AppEvents = Get-EventLog ñLogName Application
-$AppEvents | ForEach-Object ñProcess {Out-File ñFilePath C:\Temp\AllAppEvents.TXT ñAppend ñInputObject $_.Message}
+$AppEvents = Get-EventLog ‚ÄìLogName Application
+$AppEvents | ForEach-Object ‚ÄìProcess {Out-File ‚ÄìFilePath C:\Temp\AllAppEvents.TXT ‚ÄìAppend ‚ÄìInputObject $_.Message}
 
 ######## STOP START SERVICES
 
@@ -55,8 +55,8 @@ Get-Service sql* | foreach {if ($_.Status -eq 'running') {$_.DisplayName}}
 gwmi -Class Win32_Service |? {$_.State -match 'Running' -and $_.StartName -match 'noam*' }|format-table
 gwmi -Class Win32_Service -Comp stovsvr052 -Cred "noam\srv_iristest" |? {$_.Name -like "Sieb*"}
 gtwyns
-siebsrvr_IRISUATD_STOVSVR052
-siebsrvr_IRISUATD_STOVSVR0176
+siebsrvr_IRISUATD_XXXVSVR052
+siebsrvr_IRISUATD_XXXSVR0176
 gwmi -Class Win32_Service -Comp stovsvr0176,stovsvr052 -Cred "noam\srv_iristest" |? {$_.StartName -match 'noam*'}|ft
 LG3?ZD7XDdGO
 
@@ -85,8 +85,8 @@ $retry = 5
 
 ###### Import CSV
 
-import-csv ìc:tempcomputers.csvî| where-object {$_.owner -eq "russellsmith"}
-import-csv ìc:tempcomputers.csvî ñheader Name, IP, Location, User ñdelimiter |
+import-csv ‚Äúc:tempcomputers.csv‚Äù| where-object {$_.owner -eq "russellsmith"}
+import-csv ‚Äúc:tempcomputers.csv‚Äù ‚Äìheader Name, IP, Location, User ‚Äìdelimiter |
 
 
 ###Sort and Filter
