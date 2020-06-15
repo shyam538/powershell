@@ -1,7 +1,7 @@
 cd E:\Siebel\ses\siebsrvr\BIN
 
 $enterprise = 'ESIA17'
-$gateway = 'edivsvr039'
+$gateway = 'gateway'
 $server = 'SSIA17'
 $username = 'sadmin'
 $password = 'sadmin'
