@@ -8,6 +8,6 @@ $outfile ='monitortasks.csv'
 #$header = 'DateTime','Server','Component','Status', 'RunningTasks', 'MaxTasks'
 filter timestamp {"$(get-date -UFormat '%Y-%m-%d %R'), $_"}
 
-$spool = .\srvrmgr_1 /g rcovsvr3096 /e IRISPRD3 /u sadmin /p xxxxx /i $scmds|sls RCO
+$spool = .\srvrmgr_1 /g gateway /e IRISPRD3 /u sadmin /p xxxxx /i $scmds|sls RCO
 #$spool|timestamp|ConvertFrom-Csv -Header $header| ft
 $spool|timestamp|Add-Content $outfile 
